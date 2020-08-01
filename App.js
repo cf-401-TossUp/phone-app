@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, TouchableHighlight, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Accelerometer } from 'expo-sensors';
 
 export default function App() {
   const [data, setData] = useState({});
   const [maxValue, setMaxValue] = useState(0);
-  // let maxValue = 0;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [prevVal, setPrevVal] = useState(0);
 
   useEffect(() => {
     _toggle();
@@ -47,12 +48,18 @@ export default function App() {
   let { x, y, z } = data;
 
   useEffect(() => {
+    setPrevVal(maxValue);
     setMaxValue(
-      parseInt(
-        Math.max(maxValue, Math.abs(x) || 0, Math.abs(y) || 0, Math.abs(z) || 0)
-      )
-    );
+      Math.max(maxValue, Math.abs(x) || 0, Math.abs(y) || 0, Math.abs(z) || 0)
+      );
+      
   }, [data]);
+
+  useEffect(() => {
+    if (maxValue >= prevVal && maxValue >= 5) {
+      setModalVisible(true); 
+    }
+  },[maxValue]);
 
   return (
     <View style={styles.sensor}>
@@ -62,7 +69,6 @@ export default function App() {
       <Text style={styles.text}>
         x: {round(x)} y: {round(y)} z: {round(z)}
       </Text>
-      <Text style={styles.text}>Current high score:{maxValue}</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={_toggle} style={styles.button}>
           <Text>Toggle</Text>
@@ -77,6 +83,35 @@ export default function App() {
           <Text>Fast</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.highScore}>
+        <Text style={styles.highText}>Current High Score</Text>
+        <Text style={styles.highText}>{maxValue.toFixed(2)}</Text>
+      </View>
+
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            Alert.alert("Modal has been closed.");
+          }}
+          >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Text>New High Score: {maxValue.toFixed(2)}</Text>
+          <TouchableHighlight
+              style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+              onPress={() => {
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.textStyle}>KTHX</Text>
+            </TouchableHighlight>
+          </View>
+      </View>
+        </Modal>
+      
     </View>
   );
 }
@@ -90,10 +125,37 @@ function round(n) {
 }
 
 const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'stretch',
     marginTop: 15,
+  },
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
   },
   button: {
     flex: 1,
@@ -112,6 +174,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   text: {
+    textAlign: 'center',
+  },
+  highScore: {
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  highText: {
+    fontSize: 24,
+    marginTop: 10,
+    marginBottom: 10,
     textAlign: 'center',
   },
 });
