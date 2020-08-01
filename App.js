@@ -5,7 +5,6 @@ import { Accelerometer } from 'expo-sensors';
 export default function App() {
   const [data, setData] = useState({});
   const [maxValue, setMaxValue] = useState(0);
-  // let maxValue = 0;
 
   useEffect(() => {
     _toggle();
@@ -62,7 +61,6 @@ export default function App() {
       <Text style={styles.text}>
         x: {round(x)} y: {round(y)} z: {round(z)}
       </Text>
-      <Text style={styles.text}>Current high score:{maxValue}</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={_toggle} style={styles.button}>
           <Text>Toggle</Text>
@@ -76,6 +74,10 @@ export default function App() {
         <TouchableOpacity onPress={_fast} style={styles.button}>
           <Text>Fast</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.highScore}>
+        <Text style={styles.highText}>Current High Score</Text>
+        <Text style={styles.highText}>{maxValue}</Text>
       </View>
     </View>
   );
@@ -112,6 +114,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   text: {
+    textAlign: 'center',
+  },
+  highScore: {
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  highText: {
+    fontSize: 24,
+    marginTop: 10,
+    marginBottom: 10,
     textAlign: 'center',
   },
 });
